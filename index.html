@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reportes de Ventas - Grano DeO</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <span class="logo-text">Grano DeO</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#upload" class="nav-link">
+                        <i class="fas fa-upload"></i>
+                        Cargar Datos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#reports" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        Reportes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#analytics" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        Análisis
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#export" class="nav-link">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="container">
+                <div class="section-header">
+                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard de Ventas</h1>
+                    <p>Visión general del rendimiento de ventas</p>
+                </div>
+
+                <!-- KPIs Grid -->
+                <div class="kpis-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h4>Total Ventas</h4>
+                            <p class="kpi-value" id="totalSales">$0</p>
+                            <span class="kpi-change positive">+12.5%</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h4>Total Productos</h4>
+                            <p class="kpi-value" id="totalProducts">0</p>
+                            <span class="kpi-change positive">+8.3%</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h4>Tiendas Activas</h4>
+                            <p class="kpi-value" id="activeStores">0</p>
+                            <span class="kpi-change neutral">0%</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h4>Crecimiento</h4>
+                            <p class="kpi-value" id="growth">0%</p>
+                            <span class="kpi-change positive">+15.2%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie"></i> Ventas por Tienda</h3>
+                        <canvas id="storeChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-bar"></i> Ventas por Producto</h3>
+                        <canvas id="productChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-card full-width">
+                        <h3><i class="fas fa-chart-line"></i> Tendencia de Ventas</h3>
+                        <canvas id="trendChart" width="800" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Cargar Datos -->
+        <section id="upload" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-upload"></i> Cargar Datos de Ventas</h2>
+                <p>Sube archivos CSV o Excel con las ventas diarias de cada tienda</p>
+            </div>
+            
+            <!-- Área de Carga Múltiple -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Arrastra y suelta archivos aquí</h3>
+                <p>o</p>
+                <label for="fileInput" class="upload-btn">
+                    <i class="fas fa-folder-open"></i>
+                    Seleccionar Archivos
+                </label>
+                <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls" style="display: none;">
+                <p class="upload-info">Formatos soportados: CSV, Excel (.xlsx, .xls) - Máximo 10MB por archivo</p>
+            </div>
+
+            <!-- Historial de Archivos Cargados -->
+            <div class="uploaded-files" id="uploadedFiles" style="display: none;">
+                <h3><i class="fas fa-history"></i> Archivos Cargados</h3>
+                <div class="files-list" id="filesList"></div>
+                <div class="files-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total de archivos:</span>
+                        <span class="summary-value" id="totalFiles">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Registros totales:</span>
+                        <span class="summary-value" id="totalRecords">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Tiendas activas:</span>
+                        <span class="summary-value" id="activeStores">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Procesamiento de Archivos -->
+            <div class="processing-section" id="processingSection" style="display: none;">
+                <h3><i class="fas fa-cogs"></i> Procesando Archivos</h3>
+                <div class="processing-status" id="processingStatus">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="processingText">Procesando archivos...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="content-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Reportes de Ventas</h2>
+                    <p>Genera y visualiza reportes detallados</p>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="filter-card">
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="dateType">Tipo de Reporte:</label>
+                            <select id="dateType" class="form-control">
+                                <option value="weekly">Semanal</option>
+                                <option value="monthly">Mensual</option>
+                                <option value="yearly">Anual</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="startDate">Fecha Inicio:</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label for="endDate">Fecha Fin:</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label for="storeFilter">Tienda:</label>
+                            <select id="storeFilter" class="form-control">
+                                <option value="">Todas las tiendas</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" id="btnFilter">
+                            <i class="fas fa-search"></i> Aplicar Filtros
+                        </button>
+                        <button class="btn btn-outline" id="btnClearFilters">
+                            <i class="fas fa-undo"></i> Limpiar Filtros
+                        </button>
+                        <button class="btn btn-success" id="btnExportReport">
+                            <i class="fas fa-download"></i> Exportar Reporte
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reports Table -->
+                <div class="reports-card">
+                    <div class="table-container">
+                        <table class="reports-table" id="reportsTable">
+                            <thead>
+                                <tr>
+                                    <th>Tienda</th>
+                                    <th>Producto</th>
+                                    <th>Semana</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody">
+                                <tr class="no-data">
+                                    <td colspan="6">
+                                        <div class="no-data-content">
+                                            <i class="fas fa-inbox"></i>
+                                            <p>No hay reportes disponibles. Sube un archivo para comenzar.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Análisis -->
+        <section id="analytics" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Análisis Avanzado</h2>
+                <p>Análisis detallado de ventas con filtros avanzados y comparativas</p>
+            </div>
+
+            <!-- Filtros de Análisis -->
+            <div class="analytics-filters">
+                <div class="filter-group">
+                    <label for="analyticsDateFrom">Fecha Desde:</label>
+                    <input type="date" id="analyticsDateFrom" class="form-control">
+                </div>
+                <div class="filter-group">
+                    <label for="analyticsDateTo">Fecha Hasta:</label>
+                    <input type="date" id="analyticsDateTo" class="form-control">
+                </div>
+                <div class="filter-group">
+                    <label for="analyticsStore">Tienda:</label>
+                    <select id="analyticsStore" class="form-control">
+                        <option value="">Todas las tiendas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="analyticsProduct">Producto:</label>
+                    <select id="analyticsProduct" class="form-control">
+                        <option value="">Todos los productos</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="applyAnalyticsFilters">
+                    <i class="fas fa-filter"></i> Aplicar Filtros
+                </button>
+                <button class="btn btn-secondary" id="resetAnalyticsFilters">
+                    <i class="fas fa-undo"></i> Restablecer
+                </button>
+            </div>
+
+            <!-- Métricas de Análisis -->
+            <div class="analytics-metrics">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Ventas Totales</h4>
+                        <p class="metric-value" id="analyticsTotalSales">$0.00</p>
+                        <span class="metric-change positive" id="analyticsSalesChange">+0%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Transacciones</h4>
+                        <p class="metric-value" id="analyticsTransactions">0</p>
+                        <span class="metric-change positive" id="analyticsTransactionsChange">+0%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Tiendas Activas</h4>
+                        <p class="metric-value" id="analyticsActiveStores">0</p>
+                        <span class="metric-change neutral" id="analyticsStoresChange">0%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Productos Vendidos</h4>
+                        <p class="metric-value" id="analyticsProductsSold">0</p>
+                        <span class="metric-change positive" id="analyticsProductsChange">+0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Análisis -->
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3><i class="fas fa-chart-pie"></i> Distribución por Categoría</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3><i class="fas fa-chart-bar"></i> Ventas Mensuales</h3>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3><i class="fas fa-chart-bar"></i> Comparativa entre Tiendas</h3>
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3><i class="fas fa-chart-line"></i> Proyección de Ventas</h3>
+                    <canvas id="projectionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tabla de Análisis Detallado -->
+            <div class="analytics-table-section">
+                <h3><i class="fas fa-table"></i> Análisis Detallado</h3>
+                <div class="table-controls">
+                    <div class="table-filters">
+                        <input type="text" id="analyticsSearch" placeholder="Buscar..." class="form-control">
+                        <select id="analyticsSortBy" class="form-control">
+                            <option value="date">Ordenar por Fecha</option>
+                            <option value="store">Ordenar por Tienda</option>
+                            <option value="product">Ordenar por Producto</option>
+                            <option value="total">Ordenar por Total</option>
+                        </select>
+                    </div>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" id="exportAnalytics">
+                            <i class="fas fa-download"></i> Exportar Análisis
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="analytics-table" id="analyticsTable">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tienda</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Total</th>
+                                <th>% del Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analyticsTableBody">
+                            <!-- Datos se cargan dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Exportar -->
+        <section id="export" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-download"></i> Exportar Reportes</h2>
+                <p>Genera y descarga reportes en diferentes formatos según tus necesidades</p>
+            </div>
+
+            <!-- Opciones de Exportación -->
+            <div class="export-options">
+                <div class="export-option">
+                    <div class="export-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <div class="export-content">
+                        <h3>Reporte Excel (CSV)</h3>
+                        <p>Exporta todos los datos filtrados a formato CSV compatible con Excel</p>
+                        <div class="export-controls">
+                            <select id="excelFormat" class="form-control">
+                                <option value="all">📊 Todos los datos (completo)</option>
+                                <option value="filtered">🔍 Datos filtrados actuales</option>
+                                <option value="summary">🏪 Resumen por tienda</option>
+                                <option value="daily">📅 Ventas diarias</option>
+                            </select>
+                            <button class="btn btn-success" id="exportExcel">
+                                <i class="fas fa-download"></i> Exportar Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-option">
+                    <div class="export-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="export-content">
+                        <h3>Reporte PDF</h3>
+                        <p>Genera reportes profesionales en formato PDF con gráficos y tablas</p>
+                        <div class="export-controls">
+                            <select id="pdfFormat" class="form-control">
+                                <option value="summary">📋 Resumen ejecutivo</option>
+                                <option value="detailed">📄 Reporte detallado</option>
+                                <option value="charts">📈 Reporte con gráficos</option>
+                                <option value="comparative">⚖️ Reporte comparativo</option>
+                            </select>
+                            <button class="btn btn-danger" id="exportPDF">
+                                <i class="fas fa-download"></i> Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-option">
+                    <div class="export-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="export-content">
+                        <h3>Reporte Personalizado</h3>
+                        <p>Crea reportes personalizados con filtros específicos y formato personalizado</p>
+                        <div class="export-controls">
+                            <button class="btn btn-primary" id="createCustomReport">
+                                <i class="fas fa-magic"></i> Crear Reporte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración de Exportación -->
+            <div class="export-configuration">
+                <h3><i class="fas fa-cog"></i> Configuración de Exportación</h3>
+                <p class="config-description">Configura los filtros para exportación y aplica la configuración a los filtros de reportes</p>
+                <div class="config-grid">
+                    <div class="config-group">
+                        <label for="exportDateRange">📅 Rango de Fechas:</label>
+                        <div class="date-range-inputs">
+                            <input type="date" id="exportDateFrom" class="form-control" placeholder="Desde">
+                            <span>hasta</span>
+                            <input type="date" id="exportDateTo" class="form-control" placeholder="Hasta">
+                        </div>
+                        <small class="form-text">Selecciona el período de datos a exportar</small>
+                    </div>
+                    <div class="config-group">
+                        <label for="exportStores">🏪 Tiendas:</label>
+                        <select id="exportStores" class="form-control" multiple>
+                            <option value="">Seleccionar tiendas</option>
+                        </select>
+                        <small class="form-text">Mantén Ctrl/Cmd presionado para seleccionar múltiples tiendas</small>
+                    </div>
+                    <div class="config-group">
+                        <label for="exportProducts">📦 Productos:</label>
+                        <select id="exportProducts" class="form-control" multiple>
+                            <option value="">Seleccionar productos</option>
+                        </select>
+                        <small class="form-text">Mantén Ctrl/Cmd presionado para seleccionar múltiples productos</small>
+                    </div>
+                    <div class="config-group">
+                        <label for="exportFormat">📄 Formato de Archivo:</label>
+                        <select id="exportFormat" class="form-control">
+                            <option value="csv">CSV (Excel) - Tabla de datos</option>
+                            <option value="pdf">PDF - Reporte formateado</option>
+                            <option value="json">JSON - Datos estructurados</option>
+                        </select>
+                        <small class="form-text">Formato para el reporte personalizado</small>
+                    </div>
+                </div>
+                <div class="config-actions">
+                    <button class="btn btn-primary" id="applyExportConfig">
+                        <i class="fas fa-check"></i> Aplicar a Filtros de Reportes
+                    </button>
+                    <button class="btn btn-secondary" id="resetExportConfig">
+                        <i class="fas fa-undo"></i> Restablecer
+                    </button>
+                </div>
+                <div class="config-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span><strong>Nota:</strong> Al aplicar la configuración, se actualizarán automáticamente los filtros de la pestaña "Reportes" para que puedas ver los datos antes de exportar.</span>
+                </div>
+            </div>
+
+            <!-- Historial de Exportaciones -->
+            <div class="export-history">
+                <h3><i class="fas fa-history"></i> Historial de Exportaciones</h3>
+                <div class="history-table">
+                    <table class="export-history-table" id="exportHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Formato</th>
+                                <th>Filtros Aplicados</th>
+                                <th>Registros</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exportHistoryBody">
+                            <!-- Historial se carga dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Vista Previa del Reporte -->
+            <div class="export-preview" id="exportPreview" style="display: none;">
+                <h3><i class="fas fa-eye"></i> Vista Previa del Reporte</h3>
+                <div class="preview-content" id="previewContent">
+                    <!-- Contenido de vista previa -->
+                </div>
+                <div class="preview-actions">
+                    <button class="btn btn-primary" id="downloadPreview">
+                        <i class="fas fa-download"></i> Descargar
+                    </button>
+                    <button class="btn btn-secondary" id="closePreview">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Loading Modal -->
+    <div class="modal" id="loadingModal" style="display: none;">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <h3>Procesando archivo...</h3>
+            <p>Por favor espera mientras analizamos tus datos.</p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal" style="display: none;">
+        <div class="modal-content success">
+            <i class="fas fa-check-circle"></i>
+            <h3>¡Archivo procesado exitosamente!</h3>
+            <p id="successMessage"></p>
+            <button class="btn btn-primary" onclick="closeModal('successModal')">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal" id="errorModal" style="display: none;">
+        <div class="modal-content error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Error al procesar archivo</h3>
+            <p id="errorMessage"></p>
+            <button class="btn btn-secondary" onclick="closeModal('errorModal')">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

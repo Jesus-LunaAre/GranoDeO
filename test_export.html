@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Filtros de Exportación - Grano DeO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background: #fbbf24;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #f59e0b;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Prueba de Filtros de Exportación - Grano DeO</h1>
+    
+    <div class="test-section">
+        <h2>Configuración de Exportación</h2>
+        
+        <div class="form-group">
+            <label for="exportDateFrom">📅 Fecha Desde:</label>
+            <input type="date" id="exportDateFrom">
+        </div>
+        
+        <div class="form-group">
+            <label for="exportDateTo">📅 Fecha Hasta:</label>
+            <input type="date" id="exportDateTo">
+        </div>
+        
+        <div class="form-group">
+            <label for="exportStores">🏪 Tiendas:</label>
+            <select id="exportStores" multiple>
+                <option value="">Seleccionar tiendas</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="exportProducts">📦 Productos:</label>
+            <select id="exportProducts" multiple>
+                <option value="">Seleccionar productos</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="exportFormat">📄 Formato:</label>
+            <select id="exportFormat">
+                <option value="csv">CSV</option>
+                <option value="pdf">PDF</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+        
+        <button onclick="testFilters()">🧪 Probar Filtros</button>
+        <button onclick="loadSampleData()">📊 Cargar Datos de Prueba</button>
+        <button onclick="clearFilters()">🗑️ Limpiar Filtros</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Resultados de la Prueba</h2>
+        <div id="testResults" class="result">
+            Haz clic en "Probar Filtros" para ver los resultados
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Datos de Prueba</h2>
+        <div id="dataInfo" class="result">
+            No hay datos cargados
+        </div>
+    </div>
+
+    <script>
+        // Datos de prueba
+        let testData = [];
+        
+        // Función para cargar datos de muestra
+        function loadSampleData() {
+            const products = [
+                'Arroz 1kg', 'Leche 1L', 'Huevos 30pz', 'Coca Cola 2L', 'Detergente 1kg',
+                'Pan de caja', 'Aceite 1L', 'Azúcar 1kg', 'Harina 1kg', 'Frijoles 1kg'
+            ];
+            
+            const stores = ['Tienda Centro', 'Tienda Norte', 'Tienda Sur', 'Tienda Este'];
+            
+            testData = [];
+            const today = new Date();
+            
+            // Generar datos para los últimos 7 días
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                // Generar 5-10 tickets por día
+                const ticketsPerDay = Math.floor(Math.random() * 6) + 5;
+                
+                for (let j = 0; j < ticketsPerDay; j++) {
+                    const product = products[Math.floor(Math.random() * products.length)];
+                    const store = stores[Math.floor(Math.random() * stores.length)];
+                    const quantity = Math.floor(Math.random() * 5) + 1;
+                    const unitPrice = Math.floor(Math.random() * 100) + 20;
+                    const total = quantity * unitPrice;
+                    
+                    testData.push({
+                        store,
+                        product,
+                        date: dateStr,
+                        quantity,
+                        unitPrice,
+                        total
+                    });
+                }
+            }
+            
+            updateExportOptions();
+            updateDataInfo();
+            
+            document.getElementById('testResults').innerHTML = 
+                `<strong>✅ Datos cargados exitosamente:</strong><br>
+                • ${testData.length} registros<br>
+                • ${stores.length} tiendas<br>
+                • ${products.length} productos<br>
+                • Rango de fechas: ${testData[0].date} a ${testData[testData.length-1].date}`;
+        }
+        
+        // Función para actualizar opciones de exportación
+        function updateExportOptions() {
+            const stores = [...new Set(testData.map(item => item.store))];
+            const products = [...new Set(testData.map(item => item.product))];
+            
+            // Llenar selector de tiendas
+            const exportStores = document.getElementById('exportStores');
+            exportStores.innerHTML = '<option value="">Seleccionar tiendas</option>';
+            stores.forEach(store => {
+                const option = document.createElement('option');
+                option.value = store;
+                option.textContent = store;
+                exportStores.appendChild(option);
+            });
+            
+            // Llenar selector de productos
+            const exportProducts = document.getElementById('exportProducts');
+            exportProducts.innerHTML = '<option value="">Seleccionar productos</option>';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product;
+                option.textContent = product;
+                exportProducts.appendChild(option);
+            });
+        }
+        
+        // Función para probar filtros
+        function testFilters() {
+            const exportDateFrom = document.getElementById('exportDateFrom').value;
+            const exportDateTo = document.getElementById('exportDateTo').value;
+            const exportStores = document.getElementById('exportStores');
+            const exportProducts = document.getElementById('exportProducts');
+            const exportFormat = document.getElementById('exportFormat').value;
+            
+            let results = '<h3>🔍 Resultados de la Prueba:</h3>';
+            
+            // Validar fechas
+            if (!exportDateFrom || !exportDateTo) {
+                results += '<p style="color: red;">❌ Error: Fechas no seleccionadas</p>';
+            } else {
+                results += `<p>✅ Fechas: ${exportDateFrom} a ${exportDateTo}</p>`;
+            }
+            
+            // Obtener tiendas seleccionadas
+            const selectedStores = Array.from(exportStores.selectedOptions).map(opt => opt.value).filter(v => v !== '');
+            if (selectedStores.length === 0) {
+                results += '<p style="color: orange;">⚠️ Advertencia: No se seleccionaron tiendas</p>';
+            } else {
+                results += `<p>✅ Tiendas seleccionadas: ${selectedStores.join(', ')}</p>`;
+            }
+            
+            // Obtener productos seleccionados
+            const selectedProducts = Array.from(exportProducts.selectedOptions).map(opt => opt.value).filter(v => v !== '');
+            if (selectedProducts.length === 0) {
+                results += '<p style="color: orange;">⚠️ Advertencia: No se seleccionaron productos</p>';
+            } else {
+                results += `<p>✅ Productos seleccionados: ${selectedProducts.join(', ')}</p>`;
+            }
+            
+            // Formato seleccionado
+            results += `<p>✅ Formato: ${exportFormat.toUpperCase()}</p>`;
+            
+            // Simular filtrado de datos
+            let filteredData = [...testData];
+            
+            if (exportDateFrom && exportDateTo) {
+                filteredData = filteredData.filter(item => 
+                    item.date >= exportDateFrom && item.date <= exportDateTo
+                );
+            }
+            
+            if (selectedStores.length > 0) {
+                filteredData = filteredData.filter(item => 
+                    selectedStores.includes(item.store)
+                );
+            }
+            
+            if (selectedProducts.length > 0) {
+                filteredData = filteredData.filter(item => 
+                    selectedProducts.includes(item.product)
+                );
+            }
+            
+            results += `<p><strong>📊 Datos filtrados:</strong> ${filteredData.length} registros</p>`;
+            
+            if (filteredData.length > 0) {
+                const totalSales = filteredData.reduce((sum, item) => sum + item.total, 0);
+                results += `<p><strong>💰 Total de ventas:</strong> $${totalSales.toLocaleString()}</p>`;
+            }
+            
+            document.getElementById('testResults').innerHTML = results;
+        }
+        
+        // Función para limpiar filtros
+        function clearFilters() {
+            document.getElementById('exportDateFrom').value = '';
+            document.getElementById('exportDateTo').value = '';
+            document.getElementById('exportStores').selectedIndex = -1;
+            document.getElementById('exportProducts').selectedIndex = -1;
+            document.getElementById('exportFormat').value = 'csv';
+            document.getElementById('testResults').innerHTML = 'Filtros limpiados';
+        }
+        
+        // Función para actualizar información de datos
+        function updateDataInfo() {
+            if (testData.length === 0) {
+                document.getElementById('dataInfo').innerHTML = 'No hay datos cargados';
+                return;
+            }
+            
+            const stores = [...new Set(testData.map(item => item.store))];
+            const products = [...new Set(testData.map(item => item.product))];
+            const totalSales = testData.reduce((sum, item) => sum + item.total, 0);
+            
+            document.getElementById('dataInfo').innerHTML = 
+                `<strong>📊 Información de Datos:</strong><br>
+                • Total de registros: ${testData.length}<br>
+                • Tiendas disponibles: ${stores.join(', ')}<br>
+                • Productos disponibles: ${products.join(', ')}<br>
+                • Total de ventas: $${totalSales.toLocaleString()}<br>
+                • Rango de fechas: ${testData[0].date} a ${testData[testData.length-1].date}`;
+        }
+        
+        // Configurar fechas por defecto
+        window.onload = function() {
+            const today = new Date();
+            const lastWeek = new Date(today);
+            lastWeek.setDate(today.getDate() - 7);
+            
+            document.getElementById('exportDateFrom').value = lastWeek.toISOString().split('T')[0];
+            document.getElementById('exportDateTo').value = today.toISOString().split('T')[0];
+        };
+    </script>
+</body>
+</html>
